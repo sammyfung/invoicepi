@@ -1,0 +1,24 @@
+- model: invoicepi.documenttype
+  pk: 1
+  fields:
+    full_name: Quotation
+    model_name: quotation
+    opening: "Please find the following as details:"
+    after_table: ""
+    closing: Please confirm your acceptance of our offer by signing and returning to us the duplicate copy of this letter.
+- model: invoicepi.documenttype
+  pk: 2
+  fields:
+    full_name: Invoice
+    model_name: invoice
+    opening: Please prepare payment of %currency% %total_amount% for the following items.
+    after_table: Please make your cheque payable to %company_name%.
+    closing: ""
+- model: invoicepi.documenttype
+  pk: 3
+  fields: 
+    full_name: Receipt
+    model_name: receipt
+    opening: This is acknowledgement of receipt of payment of the amount of %currency% %receive_amount%.  
+    after_table: ""
+    closing: ""

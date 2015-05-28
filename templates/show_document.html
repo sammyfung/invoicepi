@@ -1,0 +1,163 @@
+{% load staticfiles %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Invoicego: {{ document.document_type }} {{ document.code }}</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+</head>
+<body style="width: 80%; margin-left: auto; margin-right: auto;">
+<div style="text-align: center">
+  <h1>{{ document.document_type }}</h1>
+</div>
+<div align=right>
+  <strong>Our Ref.: {{ document.code }}</strong><br />
+  <div style="font-size: 12px;">
+  <strong>Our User ID: {% if document.sender.person.email %} 
+    {{ document.sender.person.email }}
+  {% else %}
+    {{ document.sender.person.username }}
+  {% endif %}
+  </strong><br />
+  <strong>Your User ID: {% if document.receiver.person.email %}
+    {{ document.receiver.person.email }}
+  {% else %}
+    {{ document.receiver.person.username }}
+  {% endif %}
+  </strong>
+  </div>
+</div>
+<div class='documentdate'>
+  <p>
+    Date: {{ document.issue_date|date:"j N Y" }}
+  </p>
+</div>
+<div class='receiver'>
+  <strong>To: {{ document.receiver.company.name }}</strong><br />
+  {{ document.receiver.company.address|linebreaksbr }}<br />
+  {{ document.receiver.company.country }}<br /> 
+  Tel: {{ document.receiver.company.phone }}&nbsp;&nbsp;&nbsp;Fax: {{ document.receiver.company.fax }}<br />
+  <br />
+  <strong>Attn. {{ document.receiver.prefix }} {{ document.receiver.person.first_name }} {{ document.receiver.person.last_name }}{% if document.receiver.title %}, {{ document.receiver.title }}.
+  {% else %}.
+  {% endif %}
+  </strong>
+</div>
+<p><strong>RE: {{ document.subject }}</strong></p>
+<p>
+  {% if document.opening %}
+  {{ document.opening|safe|linebreaksbr }}<br />
+  {% endif %}
+  <table width=100% border=1px>
+    <thead>
+      <tr style="text-align: center;">
+        <td width=50><strong>Item</strong></td>
+        <td><strong>Description</strong></td>
+        <td width=50><strong>Qty</strong></td>
+        <td width=100><strong>Unit Price<br>({{ document.currency }})</strong></td>
+        <td width=100><strong>Amount<br>({{ document.currency }})</strong></td>
+      </tr>
+    </thead>
+    <tbody style="padding: 2px 2px 2px 2px; ">
+      {% for item in document_items %}
+      {% if not item.category %}
+      <tr>
+        <td colspan="5">
+          <strong>{{ item.subject }}</strong>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td style="text-align: center;">{{ item.num }}</td>
+        <td>
+          <strong>{{ item.subject }}</strong>
+          {% if not item.subject_only %}
+            <br />
+            {{ item.description|linebreaksbr }}
+          {% endif %}
+        <td style="text-align: right;">{{ item.qty }}</td>
+        <td style="text-align: right;">${{ item.unit_price }}</td>
+        {% if item.waived %}
+        <td style="text-align: right;"><strike>${{ item.price }}</strike></td>
+        {% else %}
+        <td style="text-align: right;">${{ item.price }}</td>
+        {% endif %}
+      </tr>
+      {% endif %}
+      {% endfor %}
+      {% if document.discount > 0  %}
+      <tr style="text-align: right;">
+        <td colspan=4><strong>LESS {{ document.discount }}% Discount Off:&nbsp</strong></td>
+        <td>-${{ document.lessamount }}</td>
+      </tr>
+      {% endif %}
+      <tr style="text-align: right;">
+        <td colspan=4><strong>Total:<strong></strong></td>
+        <td>${{ document.amount }}</td>
+      </tr>
+    </tbody>
+  </table>
+</p>
+{% if document.after_table %}
+<p>{{ document.after_table|safe|linebreaksbr }}</p>
+{% endif %}
+<p>
+{% for item in document_terms %}
+{% if not item.category %}
+  </p><p><strong>{{ item.subject }}: </strong>
+{% else %}
+  {% if not item.subject_only %}
+    <br />{{ item.description|linebreaksbr }}
+  {% else %}
+    <strong>{{ item.description|linebreaksbr }}</strong>
+  {% endif %}
+{% endif %}
+{% endfor %}
+</p>
+{% if document.closing %}
+<p>
+  {{ document.closing|safe|linebreaksbr }}
+</p>
+{% endif %}
+<table width=100%>
+  <tbody>
+    <tr style="vertical-align:top">
+      {% if document.sender_sign > 0 %}
+      <td width=50%>
+        <i>For and on behalf of</i><br />
+        <strong>{{ document.sender.company.name }}</strong>
+        <br /><br /><br /><br /><br /><br />
+        {% if document.sender_sign = 1 %}
+          <strong>{{ document.sender.person.first_name }} {{ document.sender.person.last_name }}</strong><br />
+          <strong>{{ document.sender.title }}</strong>
+        {% else %}
+          <strong>Name:</strong><br />
+          <strong>Title:</strong><br />
+          <strong>Date:</strong>          
+        {% endif %}
+      </td>
+      {% endif %}
+      {% if document.receiver_sign > 0 %}
+      <td width=50%>
+        <i>Accept and confirmed by</i><br />
+        <strong>{{ document.receiver.company.name }}</strong>
+        <br /><br /><br /><br /><br /><br />
+        {% if document.receiver_sign = 1 %}
+          <strong>{{ document.receiver.person.first_name }} {{ document.receiver.person.last_name }}</strong><br />
+          <strong>{{ document.receiver.title }}</strong>
+        {% else %}
+          <strong>Name:</strong><br />
+          <strong>Title:</strong><br />
+          <strong>Date:</strong>
+        {% endif %}
+      </td>
+      {% endif %}
+      {% if document.sender_sign = 0 and document.receiver_sign = 0 %}
+      <td style="text-align:center">
+      <p><strong>E&OE</strong></p>
+      <p><strong>This document is generated by computer system, no signature is required.</strong></p>
+      </td>
+      {% endif %}
+    </tr>
+  </tbody>
+</table>
+</body>
