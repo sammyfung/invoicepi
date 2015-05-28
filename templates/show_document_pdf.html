@@ -85,7 +85,7 @@
           <strong>{{ item.subject }}</strong>
           {% if not item.subject_only %}
             <br />
-            {{ item.description|linebreaksbr }}
+            {{ item.description|safe|linebreaksbr }}
           {% endif %}
         <td style="text-align: right;">{{ item.qty }}</td>
         <td style="text-align: right;">${{ item.unit_price }}</td>
@@ -119,7 +119,7 @@
   </p><p><strong>{{ item.subject }}: </strong>
 {% else %}
   {% if not item.subject_only %}
-    <br />{{ item.description|linebreaksbr }}
+    <br />{{ item.description|safe|linebreaksbr }}
   {% else %}
     <strong>{{ item.description|linebreaksbr }}</strong>
   {% endif %}
