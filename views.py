@@ -53,7 +53,7 @@ def get_document_items(document, document_categories):
   for item in document_items:
     try:
       item.price = item.qty * item.unit_price
-      if not item.waived:
+      if not item.waived and not item.category.optional:
         document.amount += item.qty * item.unit_price
     except AttributeError:
       pass

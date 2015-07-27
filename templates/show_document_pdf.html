@@ -82,7 +82,12 @@
       <tr>
         <td style="text-align: center;">{{ item.num }}</td>
         <td>
-          <strong>{{ item.subject }}</strong>
+          <strong>
+            {% if item.category.optional %}
+              ❒
+            {% endif %}
+            {{ item.subject }}
+          </strong>
           {% if not item.subject_only %}
             <br />
             {{ item.description|safe|linebreaksbr }}
