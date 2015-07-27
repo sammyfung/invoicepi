@@ -62,6 +62,11 @@ def get_document_items(document, document_categories):
   if document.discount > 0:
     document.lessamount = document.amount * (document.discount / 100)
     document.amount = document.amount - document.lessamount
+
+  # 
+  doc = Document.objects.get(pk=document.pk)
+  doc.amount = document.amount
+  doc.save()
   return (document, document_items)
 
 def get_document_terms(document):
@@ -83,22 +88,27 @@ def replace_variables(document):
     if re.search('%currency%', document.opening):
       document.opening = re.sub('%currency%', document.currency, document.opening)
     if re.search('%total_amount%', document.opening):
-      document.opening = re.sub('%total_amount%', "%s"%document.amount, document.opening)
+      document.opening = re.sub('%total_amount%', "%.2f"%document.amount, document.opening)
   if document.after_table != '':
     if re.search('%company_name%', document.after_table):
       document.after_table = re.sub('%company_name%', document.sender.company.name, document.after_table)
   return document
 
-def render_to_pdf(template_src, context_dict):
+def render_to_pdf(code, template_src, context_dict):
   template = get_template(template_src)
   context = Context(context_dict)
   html  = template.render(context)
   result = StringIO.StringIO()
+  filename = "filename=invoicepi-%s.pdf"%code
+  if context['attachment']:
+    filename = "attachment; %s"%filename
 
   #pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("ISO-8859-1")), result)
   pdf = pisa.pisaDocument(StringIO.StringIO(html.encode("UTF-8")), result)
   if not pdf.err:
-    return HttpResponse(result.getvalue(), content_type='application/pdf')
+    response = HttpResponse(result.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = filename
+    return response
   return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
 
 def show_document(request, document_id):
@@ -136,9 +146,11 @@ def show_document_pdf(request, document_id):
 
     # rendering PDF
     return render_to_pdf(
+      "%s-%s"%(document.document_type.model_name,document.pk),
       'show_document_pdf.html',
       {
         'pagesize':'A4',
+        'attachment': False,
         'document': document, 'document_categories': document_categories, 'document_items': document_items, 'document_terms': document_terms
       }
     )

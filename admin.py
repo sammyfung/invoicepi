@@ -27,11 +27,11 @@ class DocumentItemInline(admin.StackedInline):
   model = DocumentItem
 
 class DocumentAdmin(admin.ModelAdmin):
-  list_display = ('document_type', 'issue_date', 'receiver', 'subject', 'currency', 'amount', 'status')
+  list_display = ('pk', 'document_type', 'issue_date', 'receiver', 'subject', 'currency', 'amount', 'status')
   inlines = [ DocumentItemInline ]
 
 class DocumentItemAdmin(admin.ModelAdmin):
-  list_display = ('document', 'subject', 'qty', 'unit_price', 'waived')
+  list_display = ('document', 'category', 'subject', 'qty', 'unit_price', 'waived')
 
 class QuotationAdmin(admin.ModelAdmin):
   list_display = ('document', 'code')

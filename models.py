@@ -17,7 +17,7 @@ class Company(models.Model):
 
 class CompanyPerson(models.Model):
   PREFIX_CHOICES = (
-    ('Mr.', 'Mr'),
+    ('Mr.', 'Mr.'),
     ('Miss', 'Miss'),
     ('Ms.', 'Ms.'),
     ('Mrs.', 'Mrs.'),
@@ -80,7 +80,7 @@ class Document(models.Model):
   lastmodify_person = models.ForeignKey(User)
 
   def __unicode__(self):
-    return self.subject
+    return "%s %s"%(self.document_type, self.pk)
 
 class DocumentCategory(models.Model):
   document = models.ForeignKey(Document, verbose_name='Document')

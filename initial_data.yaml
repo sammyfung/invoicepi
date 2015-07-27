@@ -11,9 +11,10 @@
   fields:
     full_name: Invoice
     model_name: invoice
-    opening: Please prepare payment of %currency% %total_amount% for the following items.
-    after_table: Please make your cheque payable to %company_name%.
+    opening: "Please prepare payment of <strong><u>%currency% %total_amount%</u></strong> for the following items."
+    after_table: "Please make your payment payable to <strong><u>%company_name%</u></strong>."
     closing: ""
+    receiver_sign: 0
 - model: invoicepi.documenttype
   pk: 3
   fields: 
@@ -22,3 +23,4 @@
     opening: This is acknowledgement of receipt of payment of the amount of %currency% %receive_amount%.  
     after_table: ""
     closing: ""
+    receiver_sign: 0
