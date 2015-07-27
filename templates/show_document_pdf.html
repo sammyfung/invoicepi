@@ -102,16 +102,18 @@
       </tr>
       {% endif %}
       {% endfor %}
-      {% if document.discount > 0  %}
+      {% if document.discount > 0 and document.lessamount > 0 %}
       <tr style="text-align: right;">
         <td colspan=4><strong>LESS {{ document.discount }}% Discount Off:&nbsp</strong></td>
         <td>-${{ document.lessamount }}</td>
       </tr>
       {% endif %}
+      {% if document.amount > 0 %}
       <tr style="text-align: right;">
         <td colspan=4><strong>Total:<strong></strong></td>
         <td><strong>${{ document.amount }}</strong></td>
       </tr>
+      {% endif %}
     </tbody>
   </table>
 </p>
