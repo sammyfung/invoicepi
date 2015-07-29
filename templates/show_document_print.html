@@ -3,29 +3,16 @@
 <html>
 <head>
 <title>{{ document.document_type }} #{{ document.code }} | invoicepi.com</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8"> 
-<style type="text/css">
-@page {
-  size: {{ pagesize }};
-  margin: 1cm;
-  @frame footer {
-    -pdf-frame-content: footerContent;
-    bottom: 0cm;
-    margin-left: 9cm;
-    margin-right: 9cm;
-    height: 1cm;
-  }
-}
-</style>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
 </head>
 <body style="width: 80%; margin-left: auto; margin-right: auto; font-size: 12px;">
 <div style="text-align: center">
-  <h1 style="font-size: 22px;">{{ document.document_type }}</h1>
+  <h1>{{ document.document_type }}</h1>
 </div>
 <div align=right>
   <strong>Our Ref.: {{ document.code }}</strong><br />
-  <div style="font-size: 10px;">
-  <strong>Our User ID: {% if document.sender.person.email %}
+  <div style="font-size: 12px;">
+  <strong>Our User ID: {% if document.sender.person.email %} 
     {{ document.sender.person.email }}
   {% else %}
     {{ document.sender.person.username }}
@@ -55,22 +42,22 @@
   {% endif %}
   </strong>
 </p>
-<p><strong>{{ document.subject }}</strong></p>
+<p><strong>RE: {{ document.subject }}</strong></p>
 <p>
   {% if document.opening %}
   {{ document.opening|safe|linebreaksbr }}<br />
   {% endif %}
-  <table width=100% border=1px style="padding: 2px 2px 2px 2px; ">
+  <table width=100% border=1px>
     <thead>
       <tr style="text-align: center;">
-        <td width=30><strong>Item</strong></td>
+        <td width=50><strong>Item</strong></td>
         <td><strong>Description</strong></td>
-        <td width=30><strong>Qty</strong></td>
-        <td width=70><strong>Unit Price<br>({{ document.currency }})</strong></td>
-        <td width=70><strong>Amount<br>({{ document.currency }})</strong></td>
+        <td width=50><strong>Qty</strong></td>
+        <td width=100><strong>Unit Price<br>({{ document.currency }})</strong></td>
+        <td width=100><strong>Amount<br>({{ document.currency }})</strong></td>
       </tr>
     </thead>
-    <tbody>
+    <tbody style="padding: 2px 2px 2px 2px; ">
       {% for item in document_items %}
       {% if not item.category %}
       <tr>
@@ -84,7 +71,7 @@
         <td>
           <strong>
             {% if item.category.optional %}
-              ❒
+              ❒ 
             {% endif %}
             {{ item.subject }}
           </strong>
@@ -142,7 +129,7 @@
   <tbody>
     <tr style="vertical-align:top">
       {% if document.sender_sign > 0 %}
-      <td width=50% valign="top">
+      <td width=50%>
         <i>For and on behalf of</i><br />
         <strong>{{ document.sender.company.name }}</strong>
         <br /><br /><br /><br /><br /><br />
@@ -152,12 +139,12 @@
         {% else %}
           <strong>Name:</strong><br />
           <strong>Title:</strong><br />
-          <strong>Date:</strong>
+          <strong>Date:</strong>          
         {% endif %}
       </td>
       {% endif %}
       {% if document.receiver_sign > 0 %}
-      <td width=50% valign="top">
+      <td width=50%>
         <i>Accept and confirmed by</i><br />
         <strong>{{ document.receiver.company.name }}</strong>
         <br /><br /><br /><br /><br /><br />
@@ -180,9 +167,5 @@
     </tr>
   </tbody>
 </table>
-<div id="footerContent">
-  {%block page_foot%}
-    Page <pdf:pagenumber>
-  {%endblock%}
-</div>
 </body>
+</html>

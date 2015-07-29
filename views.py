@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.shortcuts import Http404
-from .models import Document, DocumentType, DocumentCategory, DocumentItem, DocumentFlow
+from .models import Document, DocumentType, DocumentCategory, DocumentItem, DocumentFlow, CompanyPerson
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 import cStringIO as StringIO
@@ -8,6 +8,7 @@ import ho.pisa as pisa
 from django.template.loader import get_template
 from django.template import Context
 from django.http import HttpResponse
+from django.db.models import Q
 from cgi import escape
 import re
 
@@ -193,5 +194,14 @@ def produce_workflow(request, document_id, flow_id):
     return HttpResponse(source_doc.pk)
     #return HttpResponseRedirect("http://localhost:
 
+  else:
+    raise Http404("Authentication is required.")
+
+#def list_document(request, issue_date):
+def list_document(request):
+  if request.user.is_authenticated():
+    document_list = Document.objects.filter(Q(sender__person=request.user) | Q(receiver__person=request.user)).order_by('-issue_date')[:10]
+    print document_list
+    return render(request, 'list_document.html', {'document_list': document_list },)
   else:
     raise Http404("Authentication is required.")
