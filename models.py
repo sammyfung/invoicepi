@@ -10,7 +10,8 @@ class Company(models.Model):
   fax = models.CharField(verbose_name='Fax', max_length=50, null=True, blank=True)
   email = models.EmailField(verbose_name='EMail', null=True, blank=True)
   website = models.URLField(verbose_name='Web Site', null=True, blank=True)
-  primary_contact = models.ForeignKey(User)
+  primary_contact = models.ForeignKey(User, related_name='company_primary_contact')
+  creator = models.ForeignKey(User, related_name='company_creator')
 
   def __unicode__(self):
     return self.name
@@ -24,11 +25,12 @@ class CompanyPerson(models.Model):
     ('Dr.', 'Dr.'),
   )
   company = models.ForeignKey(Company)
-  person = models.ForeignKey(User)
+  person = models.ForeignKey(User, related_name='companyperson_person')
   title = models.CharField(verbose_name='Title', max_length=50, null=True, blank=True)
   mobile = models.CharField(verbose_name='Mobile', max_length=50, null=True, blank=True)
   direct = models.CharField(verbose_name='Direct', max_length=50, null=True, blank=True)
   prefix = models.CharField(verbose_name='Prefix', max_length=4, null=True, blank=True, choices=PREFIX_CHOICES)
+  creator = models.ForeignKey(User, related_name='companyperson_creator')
 
   def __unicode__(self):
     name = '%s %s'%(self.person.first_name, self.person.last_name)

@@ -112,7 +112,9 @@ def render_to_pdf(code, template_src, context_dict):
     return response
   return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
 
-def show_document(request, document_id):
+## Template Views ##
+
+def show_document(request, document_id, docprint=False):
   if request.user.is_authenticated(): 
     try:
       document = get_document(document_id)
@@ -127,7 +129,11 @@ def show_document(request, document_id):
       raise Http404("Document not exist.")
 
     # rendering HTML
-    return render(request, 'show_document.html', {'document': document, 'document_categories': document_categories, 'document_items': document_items, 'document_terms': document_terms},)
+    if docprint:
+      docprint='show_document_print.html'
+    else:
+      docprint='show_document.html'
+    return render(request, docprint, {'document': document, 'document_categories': document_categories, 'document_items': document_items, 'document_terms': document_terms},)
   else:
     raise Http404("Authentication is required.")
 
