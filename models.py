@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.timezone import now
+
 
 class Company(models.Model):
   name = models.CharField(verbose_name='Name', max_length=100)
@@ -15,6 +17,7 @@ class Company(models.Model):
 
   def __unicode__(self):
     return self.name
+
 
 class CompanyPerson(models.Model):
   PREFIX_CHOICES = (
@@ -39,6 +42,7 @@ class CompanyPerson(models.Model):
     else:
       return name
 
+
 class DocumentType(models.Model):
   full_name = models.CharField(verbose_name='Full Name', max_length=100)
   model_name = models.CharField(verbose_name='Model Name', max_length=50, null=True, blank=True)
@@ -52,9 +56,11 @@ class DocumentType(models.Model):
   def __unicode__(self):
     return self.full_name
 
+
 class DocumentFlow(models.Model):
   document = models.ForeignKey(DocumentType, related_name='master')
   product = models.ForeignKey(DocumentType, related_name='product')
+
 
 class Document(models.Model):
   CURRENCY_CHOICES = (
@@ -72,17 +78,19 @@ class Document(models.Model):
   document_type = models.ForeignKey(DocumentType, verbose_name='Type')
   sender = models.ForeignKey(CompanyPerson, verbose_name='From', related_name='sender')
   receiver = models.ForeignKey(CompanyPerson, verbose_name='To', related_name='receiver')
-  issue_date = models.DateTimeField(verbose_name='Issue Date', auto_now_add=True, editable=True)
+  issue_date = models.DateTimeField(verbose_name='Issue Date', default=now)
   subject = models.CharField(verbose_name='Subject', max_length=100)
   discount = models.FloatField(verbose_name='Discount %', blank=True, null=True)
   amount = models.FloatField(verbose_name='Amount', blank=True, null=True)
   currency = models.CharField(verbose_name='Currency', max_length=3, choices=CURRENCY_CHOICES, default='HKD')
   status = models.CharField(verbose_name='Status', max_length=6, choices=STATUS_CHOICES, default='DRAFT')
-  lastmodify_date = models.DateTimeField(verbose_name='Last Modfiy Date', auto_now=True)
+  lastmodify_date = models.DateTimeField(verbose_name='Last Modify Date', auto_now=True)
   lastmodify_person = models.ForeignKey(User)
+  created_date = models.DateTimeField(verbose_name='Creation Date', auto_now_add=True)
 
   def __unicode__(self):
     return "%s %s"%(self.document_type, self.pk)
+
 
 class DocumentCategory(models.Model):
   document = models.ForeignKey(Document, verbose_name='Document')
@@ -93,6 +101,7 @@ class DocumentCategory(models.Model):
 
   def __unicode__(self):
     return self.subject
+
 
 class DocumentItem(models.Model):
   document = models.ForeignKey(Document, verbose_name='Document')
@@ -110,6 +119,7 @@ class DocumentItem(models.Model):
   def __unicode__(self):
     return self.subject
 
+
 class Quotation(models.Model):
   document = models.ForeignKey(Document, verbose_name='Document')
   code = models.CharField(verbose_name='Quotation Code', max_length=100)
@@ -117,12 +127,14 @@ class Quotation(models.Model):
   def __unicode__(self):
     return self.code
 
+
 class Invoice(models.Model):
   document = models.ForeignKey(Document, verbose_name='Document')
   code = models.CharField(verbose_name='Invoice Code', max_length=100)
 
   def __unicode__(self):
     return self.code
+
 
 class Receipt(models.Model):
   document = models.ForeignKey(Document, verbose_name='Document')

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.shortcuts import Http404
-from .models import Document, DocumentType, DocumentCategory, DocumentItem, DocumentFlow, CompanyPerson
+from .models import Document, DocumentType, DocumentCategory, DocumentItem, DocumentFlow, CompanyPerson, Company
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 import cStringIO as StringIO
@@ -9,8 +9,11 @@ from django.template.loader import get_template
 from django.template import Context
 from django.http import HttpResponse
 from django.db.models import Q
+from django.contrib.auth.models import User
 from cgi import escape
 import re
+from datetime import datetime
+
 
 def get_document_format(document):
   doc_type = DocumentType.objects.get(pk=document.document_type.pk)
@@ -20,6 +23,7 @@ def get_document_format(document):
   document.sender_sign = doc_type.sender_sign
   document.receiver_sign = doc_type.receiver_sign
   return document
+
 
 def get_document(document_id):
   # Getting document info and document code in its type syntax.
@@ -32,9 +36,11 @@ def get_document(document_id):
     document.code = document.pk  
   return document
 
+
 def get_document_category(document):
   # Getting categories of a document
   return DocumentCategory.objects.all().filter(document=document.pk, term=False).order_by('order')
+
 
 def get_document_items(document, document_categories):
   # Getting items from each categories in a document
@@ -70,6 +76,7 @@ def get_document_items(document, document_categories):
   doc.save()
   return (document, document_items)
 
+
 def get_document_terms(document):
   # Getting terms of this document
   terms = DocumentCategory.objects.all().filter(document=document.pk, term=True).order_by('order')
@@ -84,6 +91,7 @@ def get_document_terms(document):
       document_terms += [ item ]
   return document_terms
 
+
 def replace_variables(document):
   if document.opening != '':
     if re.search('%currency%', document.opening):
@@ -94,6 +102,7 @@ def replace_variables(document):
     if re.search('%company_name%', document.after_table):
       document.after_table = re.sub('%company_name%', document.sender.company.name, document.after_table)
   return document
+
 
 def render_to_pdf(code, template_src, context_dict):
   template = get_template(template_src)
@@ -112,7 +121,19 @@ def render_to_pdf(code, template_src, context_dict):
     return response
   return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
 
-## Template Views ##
+
+def get_fullname(username):
+  user = User.objects.get(username=username)
+  if len(user.first_name) > 0:
+    fullname = user.first_name
+    if len(user.last_name) > 0:
+      fullname = "%s %s"%(fullname,user.last_name)
+  elif len(user.last_name) > 0:
+    fullname = user.last_name
+  else:
+    fullname = username
+  return fullname
+
 
 def show_document(request, document_id, docprint=False):
   if request.user.is_authenticated(): 
@@ -136,6 +157,7 @@ def show_document(request, document_id, docprint=False):
     return render(request, docprint, {'document': document, 'document_categories': document_categories, 'document_items': document_items, 'document_terms': document_terms},)
   else:
     raise Http404("Authentication is required.")
+
 
 def show_document_pdf(request, document_id):
   if request.user.is_authenticated():
@@ -163,6 +185,7 @@ def show_document_pdf(request, document_id):
     )
   else:
     raise Http404("Authentication is required.")
+
 
 def produce_workflow(request, document_id, flow_id):
   term = request.GET.get('term', False)
@@ -203,11 +226,81 @@ def produce_workflow(request, document_id, flow_id):
   else:
     raise Http404("Authentication is required.")
 
-#def list_document(request, issue_date):
-def list_document(request):
+
+def list_document(request, op='bf', op_date=0):
   if request.user.is_authenticated():
-    document_list = Document.objects.filter(Q(sender__person=request.user) | Q(receiver__person=request.user)).order_by('-issue_date')[:10]
-    print document_list
-    return render(request, 'list_document.html', {'document_list': document_list },)
+    item_list = Document.objects.filter(Q(sender__person=request.user) |
+                                        Q(receiver__person=request.user)).order_by('-issue_date')
+    total_item = item_list.count()
+    start_item = 0
+    first_item = 0
+    if op == 'bf' and op_date > 0:
+      op_date = datetime.fromtimestamp(int(op_date))
+      item_list = item_list.filter(issue_date__lt = op_date)
+      start_item = total_item - item_list.count()
+      first_item = 0
+    elif op == 'af' and op_date > 0:
+      op_date = datetime.fromtimestamp(int(op_date))
+      if item_list.filter(issue_date__gt = op_date).count() > 10:
+        item_list = item_list.filter(issue_date__gt = op_date)
+        start_item = item_list.count() - 11
+        first_item = start_item
+      else:
+        start_item = 0
+        first_item = 0
+    item_per_page = 10
+    if (total_item - start_item) < 10:
+      item_per_page = total_item - start_item
+    list_page = { 'first_date': int(item_list[first_item+item_per_page-1].issue_date.strftime("%s")),
+                  'last_date': int(item_list[first_item].issue_date.strftime("%s")),
+                  'total_item': total_item, 'start_item': start_item, 'item_per_page': item_per_page }
+    return render(request, 'list_document.html', { 'list_page': list_page,
+                                                   'item_list': item_list[first_item:first_item+item_per_page] },)
   else:
     raise Http404("Authentication is required.")
+
+
+def logon_form(request):
+  if request.user.is_authenticated():
+    return redirect('')
+  else:
+    return render(request, 'logon_form.html')
+
+
+def list_person(request, op='bf', start_seq=0):
+  if request.user.is_authenticated():
+    item_list = CompanyPerson.objects.filter(creator=request.user).order_by('company')
+    for item in item_list:
+      item.personname = get_fullname(item.person)
+    item_per_page = 10
+    total_item = item_list.count()
+    start_item = 0
+    if start_seq > 0:
+      start_item = int(start_seq)
+    print start_item
+    if op == 'bf':
+      start_item = start_item - item_per_page
+      if start_item < 1:
+        start_item = 0
+    #elif op == 'af':
+    #  if start_item + item_per_page >= total_item:
+    #    item_per_page = total_item - start_item
+    if (total_item - start_item) < 10:
+      item_per_page = total_item - start_item
+    print "%s %s %s"%(total_item, start_item, item_per_page)
+    list_page = { 'total_item': total_item, 'start_item': start_item, 'item_per_page': item_per_page }
+    return render(request, 'list_person.html', { 'list_page': list_page,
+                                                 'item_list': item_list[start_item:start_item+item_per_page] },)
+  else:
+    raise Http404("Authentication is required.")
+
+
+def list_company(request):
+  if request.user.is_authenticated():
+    company_list = Company.objects.filter(creator=request.user).order_by('-name')
+    for company in company_list:
+      company.prefix = "Mr/Ms"
+      company.personname = "%s %s"%(company.primary_contact.first_name, company.primary_contact.last_name)
+    return render(request, 'list_company.html', { 'company_list': company_list })
+  else:
+    return Http404("Authentication is required.")

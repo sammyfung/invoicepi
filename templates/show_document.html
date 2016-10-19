@@ -1,6 +1,17 @@
 {% extends "base.html" %}
+{% block title %}
+{{ document.document_type }} #{{ document.code }}
+{% endblock %}
+{% block sidebar %}
+<ul class="nav nav-sidebar">
+  <li class="active"><a href="{% url 'list_document' %} ">My Document</a></li>
+  <li><a href="#">Contact List</a></li>
+  <li><a href="#">Company List</a></li>
+</ul>
+{% endblock %}
 {% block content %}
 <div class="btn-group btn-xl">
+  <a href="javascript: history.go(-1)"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></a>
   <a href="{% url 'show_document_pdf' document.pk %}"><span class="glyphicon glyphicon-save-file" aria-hidden="true"></span></a>
   <a href="{% url 'show_document_print' document.pk %}"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>
 </div>
@@ -40,7 +51,7 @@
   {% endif %}
   </strong>
 </p>
-<p><strong>RE: {{ document.subject }}</strong></p>
+<p><strong>{{ document.subject }}</strong></p>
 <p>
   {% if document.opening %}
   {{ document.opening|safe|linebreaksbr }}<br />

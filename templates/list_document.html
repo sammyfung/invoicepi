@@ -1,34 +1,53 @@
 {% extends "base.html" %}
+{% block title %}
+My Documents
+{% endblock %}
+{% block sidebar %}
+<ul class="nav nav-sidebar">
+  <li class="active"><a href="{% url 'list_document' %} ">My Documents</a></li>
+  <li><a href="{% url 'list_person' %}">Contact List</a></li>
+  <li><a href="{% url 'list_company' %}">Company List</a></li>
+</ul>
+{% endblock %}
 {% block content %}
-  <h2 class="sub-header">List of Documents</h2>
+  <div style="text-align: right;">
+   {{ list_page.start_item|add:"1" }}-{{ list_page.start_item|add:list_page.item_per_page }}
+    of {{ list_page.total_item }}
+   {% if list_page.start_item > 0 %}
+   <a href="{% url 'list_document_next' 'af' list_page.last_date %}">Prev</a>
+   {% else %}
+   Prev
+   {% endif %}
+   {% if list_page.start_item|add:list_page.item_per_page < list_page.total_item %}
+   <a href="{% url 'list_document_next' 'bf' list_page.first_date %}">Next</a>
+   {% else %}
+   Next
+   {% endif %}
+  </div>
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Type</th>
           <th>Issue Date</th>
+          <th>Type</th>
           <th>To</th>
           <th>Suject</th>
-          <th>Currency</th>
           <th>Amount</th>
           <th>Status</th>
         </tr>
       </thead>
       <tbody>
-      {% for doc in document_list %}
+      {% for item in item_list %}
         <tr>
-          <td><a href="{% url 'show_document' doc.id %}">{{ doc.id }}</a></td>
-          <td>{{ doc.document_type }}</td>
-          <td>{{ doc.issue_date }}</td>
-          <td>{{ doc.receiver }}</td>
-          <td>{{ doc.subject }}</td>
-          <td>{{ doc.currency }}</td>
-          <td>{{ doc.amount }}</td>
-          <td>{{ doc.status }}</td>
+          <td>{{ item.issue_date }}</td>
+          <td>{{ item.document_type }}</td>
+          <td>{{ item.receiver }}</td>
+          <td><a href="{% url 'show_document' item.id %}">{{ item.subject }}</a></td>
+          <td style="text-align: right;">{{ item.amount }} {{ item.currency }}</td>
+          <td>{{ item.status }}</td>
         </tr>
      {% endfor %}
      </tbody>
-   </table>
+    </table>
  </div>
 {% endblock %}
