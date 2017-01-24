@@ -68,7 +68,7 @@ def get_document_items(document, document_categories):
             pass
 
     # Calculating discount and total amount
-    if document.discount > 0:
+    if document.discount != None:
         document.lessamount = document.amount * (document.discount / 100)
         document.amount = document.amount - document.lessamount
 
