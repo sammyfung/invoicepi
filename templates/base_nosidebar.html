@@ -5,12 +5,10 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}{% endblock %} | invoicepi.com</title>
+  <title>{{ document.document_type }} #{{ document.code }} | invoicepi.com</title>
   <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
   <link href="{% static 'css/bootstrap-theme.min.css' %}" rel="stylesheet">
   <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">`
-  {% block css %}
-  {% endblock %}
 </head>
 <body style="width: 100%; margin-left: auto; margin-right: auto;">
   <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -30,8 +28,6 @@
           <li><a href="#">Dashboard</a></li>
           <li><a href="#">Settings</a></li>
           <li><a href="#">Profile</a></li>
-          <li><a href="/admin">Django Admin</a></li>
-          <li><a href="/logoff">Logout</a></li>
           <li><a href="#">Help</a></li>
         {% endif %}
         </ul>
@@ -45,11 +41,7 @@
   </nav>
   <div class="container-fluid">
     <div class="row">
-      <div class="col-sm-3 col-md-2 sidebar">
-        {% block sidebar %}
-        {% endblock %}
-      </div>
-      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+      <div class="col-md-12 col-md-offset-4 main">
         {% block content %}
         {% endblock %}
       </div>
@@ -57,7 +49,5 @@
   </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
-{% block js %}
-{% endblock %}
 </body>
 </html>
