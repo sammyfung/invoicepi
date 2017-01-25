@@ -162,12 +162,33 @@ def api_show_document(request, document_id):
     if request.user.is_authenticated():
         try:
             document = get_document(document_id)
-            json_items = { 'id': document.id }
+            json_items = { 'id': document.id, 'data': [] }
             if request.user == document.sender.person or request.user == document.receiver.person:
                 document_categories = get_document_category(document)
                 document, document_items = get_document_items(document, document_categories)
                 document = replace_variables(document)
                 document_terms = get_document_terms(document)
+                for i in document_categories:
+                    json_item = {}
+                    json_item['category_id'] = i.id
+                    json_item['category_subject'] = i.subject
+                    json_item['category_optional'] = i.optional
+                    json_item['category_order'] = i.order
+                    json_item['item'] = {}
+                    for j in document_items:
+                        json_subitem = {}
+                        json_subitem['item_id'] = j.id
+                        #json_subitem['item_parent'] = j.parent
+                        json_subitem['item_subject'] = j.subject
+                        #json_subitem['item_description'] = j.description
+                        #json_subitem['item_qty'] = j.qty
+                        #json_subitem['item_unit_cost'] = j.unit_cost
+                        #json_subitem['item_unit_price'] = j.unit_price
+                        #json_subitem['item_waived'] = j.waived
+                        #json_subitem['item_subject_only'] = j.subject_only
+                        json_item['item'].append(json_subitem)
+
+                    json_items['data'].append(json_item)
             else:
                 raise Http404("Permission is denied.")
         except Document.DoesNotExist:
@@ -329,5 +350,13 @@ def api_list_company(request):
             json_item['creator'] = "%s"%company.creator
             json_items['data'].append(json_item)
         return JsonResponse(json_items)
+    else:
+        return Http404("Authentication is required.")
+
+
+def api_show_company(request):
+    if request.user.is_authenticated():
+        # company = Company.objects.filter()
+        pass
     else:
         return Http404("Authentication is required.")
