@@ -40,10 +40,9 @@ class CompanyPerson(models.Model):
         ('Mrs.', 'Mrs.'),
         ('Dr.', 'Dr.'),
     )
-    company = models.ForeignKey(Company)
+    company = models.ForeignKey(Company, verbose_name='Company', on_delete=models.CASCADE)
     person = models.ForeignKey(User, related_name='companyperson_person', \
-                               verbose_name='Person', on_delete=models.SET_NULL, \
-                               null=True, blank=True)
+                               verbose_name='Person', on_delete=models.CASCADE)
     title = models.CharField(verbose_name='Title', max_length=50, null=True, blank=True)
     mobile = models.CharField(verbose_name='Mobile', max_length=50, null=True, blank=True)
     direct = models.CharField(verbose_name='Direct', max_length=50, null=True, blank=True)
