@@ -12,8 +12,12 @@ class Company(models.Model):
     fax = models.CharField(verbose_name='Fax', max_length=50, null=True, blank=True)
     email = models.EmailField(verbose_name='EMail', null=True, blank=True)
     website = models.URLField(verbose_name='Web Site', null=True, blank=True)
-    primary_contact = models.ForeignKey(User, related_name='company_primary_contact')
-    creator = models.ForeignKey(User, related_name='company_creator')
+    primary_contact = models.ForeignKey(User, related_name='company_primary_contact', \
+                                        verbose_name='Web Site', on_delete=models.SET_NULL, \
+                                        null=True, blank=True)
+    creator = models.ForeignKey(User, related_name='company_creator', \
+                                verbose_name='Creator', on_delete=models.SET_NULL, \
+                                null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -37,12 +41,16 @@ class CompanyPerson(models.Model):
         ('Dr.', 'Dr.'),
     )
     company = models.ForeignKey(Company)
-    person = models.ForeignKey(User, related_name='companyperson_person')
+    person = models.ForeignKey(User, related_name='companyperson_person', \
+                               verbose_name='Person', on_delete=models.SET_NULL, \
+                               null=True, blank=True)
     title = models.CharField(verbose_name='Title', max_length=50, null=True, blank=True)
     mobile = models.CharField(verbose_name='Mobile', max_length=50, null=True, blank=True)
     direct = models.CharField(verbose_name='Direct', max_length=50, null=True, blank=True)
     prefix = models.CharField(verbose_name='Prefix', max_length=4, null=True, blank=True, choices=PREFIX_CHOICES)
-    creator = models.ForeignKey(User, related_name='companyperson_creator')
+    creator = models.ForeignKey(User, related_name='companyperson_creator', \
+                                verbose_name='Creator', on_delete=models.SET_NULL, \
+                                null=True, blank=True)
 
     def __str__(self):
         if len(self.person.first_name) > 0 or len(self.person.last_name) > 0:
@@ -69,8 +77,10 @@ class DocumentType(models.Model):
 
 
 class DocumentFlow(models.Model):
-    document = models.ForeignKey(DocumentType, related_name='master')
-    product = models.ForeignKey(DocumentType, related_name='product')
+    document = models.ForeignKey(DocumentType, related_name='master', \
+                                 verbose_name='Document', on_delete=models.CASCADE)
+    product = models.ForeignKey(DocumentType, related_name='product', \
+                                verbose_name='Product', on_delete=models.CASCADE)
 
 
 class Document(models.Model):
@@ -86,9 +96,15 @@ class Document(models.Model):
         ('SIGNED', 'Signed'),
         ('RECVED', 'Received'),
     )
-    document_type = models.ForeignKey(DocumentType, verbose_name='Type')
-    sender = models.ForeignKey(CompanyPerson, verbose_name='From', related_name='sender')
-    receiver = models.ForeignKey(CompanyPerson, verbose_name='To', related_name='receiver')
+    document_type = models.ForeignKey(DocumentType, verbose_name='Type', \
+                                      on_delete=models.SET_NULL, \
+                                      null=True, blank=True)
+    sender = models.ForeignKey(CompanyPerson, verbose_name='From',
+                               related_name='sender', on_delete=models.SET_NULL, \
+                               null=True, blank=True)
+    receiver = models.ForeignKey(CompanyPerson, verbose_name='To', \
+                                 related_name='receiver', on_delete=models.SET_NULL, \
+                                 null=True, blank=True)
     issue_date = models.DateTimeField(verbose_name='Issue Date', default=now)
     subject = models.CharField(verbose_name='Subject', max_length=100)
     discount = models.FloatField(verbose_name='Discount %', blank=True, null=True)
@@ -96,7 +112,9 @@ class Document(models.Model):
     currency = models.CharField(verbose_name='Currency', max_length=3, choices=CURRENCY_CHOICES, default='HKD')
     status = models.CharField(verbose_name='Status', max_length=6, choices=STATUS_CHOICES, default='DRAFT')
     lastmodify_date = models.DateTimeField(verbose_name='Last Modify Date', auto_now=True)
-    lastmodify_person = models.ForeignKey(User)
+    lastmodify_person = models.ForeignKey(User, verbose_name='Last Modified', \
+                                          on_delete=models.SET_NULL, \
+                                          null=True, blank=True)
     created_date = models.DateTimeField(verbose_name='Creation Date', auto_now_add=True)
 
     def __str__(self):
@@ -104,7 +122,8 @@ class Document(models.Model):
 
 
 class DocumentCategory(models.Model):
-    document = models.ForeignKey(Document, verbose_name='Document')
+    document = models.ForeignKey(Document, verbose_name='Document', \
+                                 on_delete=models.CASCADE)
     order = models.IntegerField(verbose_name='Order', default=0)
     subject = models.CharField(verbose_name='Subject', max_length=100)
     optional = models.BooleanField(verbose_name='Optional ?', default=False)
@@ -115,9 +134,13 @@ class DocumentCategory(models.Model):
 
 
 class DocumentItem(models.Model):
-    document = models.ForeignKey(Document, verbose_name='Document')
-    category = models.ForeignKey(DocumentCategory, verbose_name='Category', blank=True, null=True)
-    parent = models.ForeignKey('self', verbose_name='Parent Item', blank=True, null=True)
+    document = models.ForeignKey(Document, verbose_name='Document', \
+                                 on_delete=models.CASCADE)
+    category = models.ForeignKey(DocumentCategory, verbose_name='Category', \
+                                 on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', verbose_name='Parent Item', \
+                               on_delete=models.SET_NULL, \
+                               blank=True, null=True)
     order = models.IntegerField(verbose_name='Order', default=0)
     subject = models.CharField(verbose_name='Subject', max_length=100)
     description = models.TextField(verbose_name='Description', blank=True, null=True)
@@ -132,7 +155,8 @@ class DocumentItem(models.Model):
 
 
 class Quotation(models.Model):
-    document = models.ForeignKey(Document, verbose_name='Document')
+    document = models.ForeignKey(Document, verbose_name='Document', \
+                                 on_delete=models.CASCADE)
     code = models.CharField(verbose_name='Quotation Code', max_length=100)
 
     def __str__(self):
@@ -140,7 +164,8 @@ class Quotation(models.Model):
 
 
 class Invoice(models.Model):
-    document = models.ForeignKey(Document, verbose_name='Document')
+    document = models.ForeignKey(Document, verbose_name='Document', \
+                                 on_delete=models.CASCADE)
     code = models.CharField(verbose_name='Invoice Code', max_length=100)
 
     def __str__(self):
@@ -148,7 +173,8 @@ class Invoice(models.Model):
 
 
 class Receipt(models.Model):
-    document = models.ForeignKey(Document, verbose_name='Document')
+    document = models.ForeignKey(Document, verbose_name='Document', \
+                                 on_delete=models.CASCADE)
     code = models.CharField(verbose_name='Receipt Code', max_length=100)
 
     def __str__(self):
