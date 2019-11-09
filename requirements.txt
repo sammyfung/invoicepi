@@ -1,4 +1,4 @@
-Django==1.10.4
+Django==1.11.23
 django-bootstrap==0.2.4
 django-fontawesome==0.3
 html5lib==1.0b10
