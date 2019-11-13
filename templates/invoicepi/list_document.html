@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "invoicepi/base.html" %}
 {% block css %}
 <link href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css" rel="stylesheet">
 {% endblock %}
@@ -8,10 +8,17 @@
 <script>
 $(document).ready( function () {
     $('#doclist').DataTable( {
+        "order":[[0, 'desc']],
+        "processing": true,
+        "serverSide": true,
         "ajax": {
             "url": 'api/doc',
+            "type": "POST",
             "dataType": 'json',
             "dataSrc": "data",
+            "data": {
+                'csrfmiddlewaretoken': document.getElementsByName('csrfmiddlewaretoken')[0].value,
+            }
         },
         "columns": [
             { "data": "issue_date" },
@@ -53,6 +60,7 @@ My Documents
 </ul>
 {% endblock %}
 {% block content %}
+  {% csrf_token %}
   <div class="table-responsive">
     <table class="table table-striped" id="doclist">
       <thead>

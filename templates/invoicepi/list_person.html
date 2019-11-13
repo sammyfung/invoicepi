@@ -1,37 +1,35 @@
-{% extends "base.html" %}
+{% extends "invoicepi/base.html" %}
 {% block title %}
-Company List
+Contact List
 {% endblock %}
 {% block css %}
 <link href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css" rel="stylesheet">
-<link href="//cdn.datatables.net/select/1.2.1/css/select.dataTables.min.css" rel="stylesheet">
 {% endblock %}
 {% block js %}
 <script src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
-<script src="//cdn.datatables.net/select/1.2.1/js/dataTables.select.min.js"></script>
 <script>
 $(document).ready( function () {
-    $('#company_list').DataTable( {
+    $('#person_list').DataTable( {
         "ajax": {
-            "url": '../api/company',
+            "url": '../api/person',
             "dataType": 'json',
             "dataSrc": "data",
         },
         "columns": [
-            { "data": "name" },
-            { 'data': 'phone' },
-            { 'data': 'primary_contact' },
+            { "data": "company" },
+            { 'data': 'person' },
+            { 'data': 'email' },
+            { 'data': 'title' },
+            { 'data': 'mobile' },
         ],
         "columnDefs": [
             {
                 "render": function ( data, type, row ) {
-                    return '<a href="' + row['id']+ '">' + data + '</a>';
+                    return '<a href="/person/' + row['id']+ '">' + data + '</a>';
                 },
-                "targets": 0
+                "targets": 1
             },
-        ],
-        dom: "Bfrtip",
-        "select": true,
+         ]
     });
 });
 </script>
@@ -39,18 +37,20 @@ $(document).ready( function () {
 {% block sidebar %}
 <ul class="nav nav-sidebar">
   <li><a href="{% url 'list_document' %} ">My Documents</a></li>
-  <li><a href="{% url 'list_person' %}">Contact List</a></li>
-  <li class="active"><a href="{% url 'list_company' %}">Company List</a></li>
+  <li class="active"><a href="{% url 'list_person' %}">Contact List</a></li>
+  <li><a href="{% url 'list_company' %}">Company List</a></li>
 </ul>
 {% endblock %}
 {% block content %}
   <div class="table-responsive">
-    <table class="table table-striped" id="company_list">
+    <table class="table table-striped" id="person_list">
       <thead>
         <tr>
           <th>Company</th>
+          <th>Person</th>
+          <th>Email</th>
+          <th>Title</th>
           <th>Phone</th>
-          <th>Contact</th>
         </tr>
       </thead>
     </table>

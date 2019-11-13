@@ -137,7 +137,7 @@ def show_document(request, document_id, format='default'):
             # rendering PDF
             return render_to_pdf(
                 "%s-%s" % (document.document_type.model_name, document.pk),
-                'show_document_pdf.html',
+                'invoicepi/show_document_pdf.html',
                 {
                     'pagesize': 'A4',
                     'attachment': False,
@@ -146,9 +146,9 @@ def show_document(request, document_id, format='default'):
                 }
             )
         elif format == 'print':
-            templ = 'show_document_print.html'
+            templ = 'invoicepi/show_document_print.html'
         else:
-            templ = 'show_document.html'
+            templ = 'invoicepi/show_document.html'
         return render(request, templ, {'document': document, 'document_categories': document_categories, 'document_items': document_items, 'document_terms': document_terms},)
     else:
         raise Http404("Authentication is required.")
@@ -234,18 +234,50 @@ def produce_workflow(request, document_id, flow_id):
 
 def list_document(request):
     if request.user.is_authenticated:
-        return render(request, 'list_document.html')
+        return render(request, 'invoicepi/list_document.html')
     else:
         return HttpResponseRedirect('logon')
 
 
 def api_list_document(request):
     if request.user.is_authenticated:
+        draw = request.POST.get('draw', 0)
+        start = int(request.POST.get('start', 0))
+        length = int(request.POST.get('length', 20))
+        search = request.POST.get('search[value]', False)
+        orders = ''
+        order_column = int(request.POST.get('order[0][column]', 0))
+        if request.POST.get('order[0][dir]', 'asc') == 'desc':
+            prefix = '-'
+        else:
+            prefix = ''
+        if not all and order_column > 0:
+            order_column += 1
+        if order_column == 0:
+            orders = '%sissue_date' % prefix
+        elif order_column == 1:
+            orders = '%sdocument_type' % prefix
+        elif order_column == 2:
+            orders = '%sreceiver' % prefix
+        elif order_column == 3:
+            orders = '%ssubject' % prefix
+        elif order_column == 4:
+            orders = '%samount' % prefix
+        elif order_column == 5:
+            orders = '%scurrency' % prefix
+        elif order_column == 6:
+            orders = '%sstatus' % prefix
+        search_filter = Q()
+        if search:
+            for i in SEARCH_COLUMNS:
+                search_filter |= eval("Q(%s__contains=search)" % i)
         item_list = Document.objects.filter(Q(sender__person=request.user) |
-                                            Q(receiver__person=request.user)).order_by('-issue_date')
+                                            Q(receiver__person=request.user)).order_by(orders)
         total = item_list.count()
-        json_items = { 'total': total, 'data': [] }
-        for i in item_list:
+        selected_list = item_list.filter(search_filter)
+        json_items = { 'draw': draw, 'recordsTotal': total, \
+                       'recordsFiltered': selected_list.count(), 'data': [] }
+        for i in selected_list[start:start+length]:
             json_item = {}
             json_item['id'] = i.id
             json_item['document_type'] = "%s"%i.document_type
@@ -281,7 +313,7 @@ def logon_form(request):
                 login(request, user)
             return redirect('logon_form')
         else:
-            return render(request, 'logon_form.html')
+            return render(request, 'invoicepi/logon_form.html')
 
 
 def logoff_form(request):
@@ -292,7 +324,7 @@ def logoff_form(request):
 
 def list_person(request):
     if request.user.is_authenticated:
-        return render(request, 'list_person.html')
+        return render(request, 'invoicepi/list_person.html')
     else:
         raise Http404("Authentication is required.")
 
@@ -321,7 +353,7 @@ def api_list_person(request):
 
 def list_company(request):
     if request.user.is_authenticated:
-        return render(request, 'list_company.html')
+        return render(request, 'invoicepi/list_company.html')
     else:
         return Http404("Authentication is required.")
 
