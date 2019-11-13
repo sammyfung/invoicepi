@@ -136,7 +136,8 @@ class DocumentItem(models.Model):
     document = models.ForeignKey(Document, verbose_name='Document', \
                                  on_delete=models.CASCADE)
     category = models.ForeignKey(DocumentCategory, verbose_name='Category', \
-                                 on_delete=models.CASCADE)
+                                 on_delete=models.CASCADE, \
+                                 blank=True, null=True)
     parent = models.ForeignKey('self', verbose_name='Parent Item', \
                                on_delete=models.SET_NULL, \
                                blank=True, null=True)

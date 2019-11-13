@@ -1,9 +1,9 @@
-from django.shortcuts import render
-from django.shortcuts import Http404
-from .models import Document, DocumentType, DocumentCategory, DocumentItem, DocumentFlow, CompanyPerson, Company
+import re
+from io import BytesIO
+from cgi import escape
+from django.shortcuts import render, Http404, redirect
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from io import BytesIO
 from xhtml2pdf import pisa
 from django.template.loader import get_template
 from django.template import Context
@@ -11,10 +11,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from cgi import escape
-import re, json
-from datetime import datetime
-from django.core import serializers
+from .models import Document, DocumentType, DocumentCategory, DocumentItem, DocumentFlow, CompanyPerson, Company
 
 
 def get_document_format(document):
@@ -108,11 +105,10 @@ def replace_variables(document):
 
 def render_to_pdf(code, template_src, context_dict):
     template = get_template(template_src)
-    context = Context(context_dict)
-    html  = template.render(context)
+    html  = template.render(context_dict)
     result = BytesIO()
     filename = "filename=invoicepi-%s.pdf"%code
-    if context['attachment']:
+    if context_dict['attachment']:
         filename = "attachment; %s"%filename
     pdf = pisa.CreatePDF(html, result)
     if not pdf.err:
@@ -123,7 +119,7 @@ def render_to_pdf(code, template_src, context_dict):
 
 
 def show_document(request, document_id, format='default'):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         try:
             document = get_document(document_id)
             if request.user == document.sender.person or request.user == document.receiver.person:
@@ -159,7 +155,7 @@ def show_document(request, document_id, format='default'):
 
 
 def api_show_document(request, document_id):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         try:
             document = get_document(document_id)
             json_items = { 'id': document.id, 'data': [] }
@@ -200,7 +196,7 @@ def api_show_document(request, document_id):
 
 def produce_workflow(request, document_id, flow_id):
     term = request.GET.get('term', False)
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         try:
             source_doc = Document.objects.get(pk=document_id)
             if request.user != source_doc.sender.person and request.user != source_doc.receiver.person:
@@ -237,14 +233,14 @@ def produce_workflow(request, document_id, flow_id):
 
 
 def list_document(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return render(request, 'list_document.html')
     else:
         return HttpResponseRedirect('logon')
 
 
 def api_list_document(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         item_list = Document.objects.filter(Q(sender__person=request.user) |
                                             Q(receiver__person=request.user)).order_by('-issue_date')
         total = item_list.count()
@@ -270,8 +266,8 @@ def api_list_document(request):
 
 
 def logon_form(request):
-    if request.user.is_authenticated():
-        return HttpResponseRedirect('/')
+    if request.user.is_authenticated:
+        return redirect('list_document')
     else:
         email = request.POST.get('inputEmail', '')
         password = request.POST.get('inputPassword', '')
@@ -279,30 +275,30 @@ def logon_form(request):
             try:
                 username = User.objects.get(email=email).username
             except ObjectDoesNotExist:
-                return HttpResponseRedirect('/')
+                return redirect('logon_form')
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-            return HttpResponseRedirect('/')
+            return redirect('logon_form')
         else:
             return render(request, 'logon_form.html')
 
 
 def logoff_form(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         logout(request)
-    return HttpResponseRedirect('/')
+    return redirect('logon_form')
 
 
 def list_person(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return render(request, 'list_person.html')
     else:
         raise Http404("Authentication is required.")
 
 
 def api_list_person(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         person_list = CompanyPerson.objects.filter(creator=request.user).order_by('company')
         total = person_list.count()
         json_items = { 'total': total, 'data': []}
@@ -324,14 +320,14 @@ def api_list_person(request):
 
 
 def list_company(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return render(request, 'list_company.html')
     else:
         return Http404("Authentication is required.")
 
 
 def api_list_company(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         company_list = Company.objects.filter(creator=request.user).order_by('-name')
         total = company_list.count()
         json_items = { 'total': total, 'data': [] }
@@ -355,7 +351,7 @@ def api_list_company(request):
 
 
 def api_show_company(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         # company = Company.objects.filter()
         pass
     else:
