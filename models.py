@@ -83,7 +83,7 @@ class DocumentFlow(models.Model):
 
 
 class Document(models.Model):
-    SEARCH_COLUMNS = ['id', 'document_type', 'sender__username', 'receiver__username', \
+    SEARCH_COLUMNS = ['id', 'document_type__full_name', 'sender__person__username', 'receiver__person__username', \
                       'issue_date', 'subject', 'status']
     CURRENCY_CHOICES = (
         ('HKD', 'HK Dollars (HKD)'),
