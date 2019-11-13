@@ -269,7 +269,7 @@ def api_list_document(request):
             orders = '%sstatus' % prefix
         search_filter = Q()
         if search:
-            for i in SEARCH_COLUMNS:
+            for i in Document().SEARCH_COLUMNS:
                 search_filter |= eval("Q(%s__contains=search)" % i)
         item_list = Document.objects.filter(Q(sender__person=request.user) |
                                             Q(receiver__person=request.user)).order_by(orders)
