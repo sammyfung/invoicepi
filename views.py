@@ -33,6 +33,8 @@ def get_document(document_id):
         document.code = document_type.model_class().objects.get(pk=document.pk).code
     except ObjectDoesNotExist:
         document.code = document.pk
+    except AttributeError:
+        document.code = document.pk
     return document
 
 

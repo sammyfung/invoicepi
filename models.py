@@ -100,6 +100,7 @@ class Document(models.Model):
     document_type = models.ForeignKey(DocumentType, verbose_name='Type', \
                                       on_delete=models.SET_NULL, \
                                       null=True, blank=True)
+    code = models.CharField(verbose_name='Code', max_length=20, blank=True, null=True)
     sender = models.ForeignKey(CompanyPerson, verbose_name='From',
                                related_name='sender', on_delete=models.SET_NULL, \
                                null=True, blank=True)
@@ -154,15 +155,6 @@ class DocumentItem(models.Model):
 
     def __str__(self):
         return self.subject
-
-
-class Quotation(models.Model):
-    document = models.ForeignKey(Document, verbose_name='Document', \
-                                 on_delete=models.CASCADE)
-    code = models.CharField(verbose_name='Quotation Code', max_length=100)
-
-    def __str__(self):
-        return self.code
 
 
 class Invoice(models.Model):

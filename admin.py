@@ -1,9 +1,11 @@
 from django.contrib import admin
 from invoicepi.models import Company, CompanyPerson, DocumentType, DocumentFlow, Document, \
-    DocumentCategory, DocumentItem, Quotation
+    DocumentCategory, DocumentItem
+
 
 class CompanyAdmin(admin.ModelAdmin):
     list_display = ('name', 'phone', 'email', 'website', 'country')
+
 
 class CompanyPersonAdmin(admin.ModelAdmin):
     list_display = ('full_name', 'company', 'title', 'email', 'mobile')
@@ -18,27 +20,31 @@ class CompanyPersonAdmin(admin.ModelAdmin):
     def email(self, person):
         return person.person.email
 
+
 class DocumentTypeAdmin(admin.ModelAdmin):
     list_display = ('model_name', 'full_name')
+
 
 class DocumentFlowAdmin(admin.ModelAdmin):
     list_display = ('document', 'product')
 
+
 class DocumentItemInline(admin.StackedInline):
     model = DocumentItem
+
 
 class DocumentAdmin(admin.ModelAdmin):
     list_display = ('pk', 'document_type', 'issue_date', 'receiver', 'subject', 'currency', 'amount', 'status')
     inlines = [ DocumentItemInline ]
 
+
 class DocumentItemAdmin(admin.ModelAdmin):
     list_display = ('document', 'category', 'subject', 'qty', 'unit_price', 'waived')
 
-class QuotationAdmin(admin.ModelAdmin):
-    list_display = ('document', 'code')
 
 class DocumentCategoryAdmin(admin.ModelAdmin):
     list_display = ('document', 'order', 'subject', 'optional', 'term')
+
 
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(CompanyPerson, CompanyPersonAdmin)
@@ -47,6 +53,5 @@ admin.site.register(DocumentFlow, DocumentFlowAdmin)
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(DocumentCategory, DocumentCategoryAdmin)
 admin.site.register(DocumentItem, DocumentItemAdmin)
-admin.site.register(Quotation, QuotationAdmin)
 #admin.site.unregister(User)
 #admin.site.register(User, UserAdmin)
