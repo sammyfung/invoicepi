@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('doc/<int:document_id>/copy', views.copy_document, name='copy_document'),
     path('doc/<int:document_id>/pdf', views.show_document, {'format': 'pdf'}, name='show_document_pdf'),
     path('doc/<int:document_id>/print', views.show_document, {'format': 'print'}, name='show_document_print'),
     path('doc/<int:document_id>', views.show_document, name='show_document'),

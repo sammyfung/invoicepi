@@ -22,6 +22,7 @@
   <a href="javascript: history.go(-1)"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span></a>
   <a href="{% url 'show_document_pdf' document.pk %}"><span class="glyphicon glyphicon-save-file" aria-hidden="true"></span></a>
   <a href="{% url 'show_document_print' document.pk %}"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>
+  <a href="{% url 'copy_document' document.pk %}"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span></a>
 </div>
 <div style="text-align: center">
   <h1>{{ document.document_type }}</h1>

@@ -360,6 +360,16 @@ def list_company(request):
         return Http404("Authentication is required.")
 
 
+def copy_document(request, document_id):
+    if request.user.is_authenticated:
+        doc = Document.objects.get(id=document_id)
+        new_doc = doc.copy_new()
+        return HttpResponseRedirect('/invoicepi/doc/%s' % new_doc.id)
+    else:
+        return Http404("Authentication is required.")
+
+
+
 def api_list_company(request):
     if request.user.is_authenticated:
         company_list = Company.objects.filter(creator=request.user).order_by('-name')
@@ -390,3 +400,4 @@ def api_show_company(request):
         pass
     else:
         return Http404("Authentication is required.")
+

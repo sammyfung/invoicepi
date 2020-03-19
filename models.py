@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.timezone import now
+from django.utils import timezone
 
 
 class Company(models.Model):
@@ -97,6 +97,7 @@ class Document(models.Model):
         ('SIGNED', 'Signed'),
         ('RECVED', 'Received'),
     )
+    DEFAULT_STATUS = 'DRAFT'
     document_type = models.ForeignKey(DocumentType, verbose_name='Type', \
                                       on_delete=models.SET_NULL, \
                                       null=True, blank=True)
@@ -107,12 +108,12 @@ class Document(models.Model):
     receiver = models.ForeignKey(CompanyPerson, verbose_name='To', \
                                  related_name='receiver', on_delete=models.SET_NULL, \
                                  null=True, blank=True)
-    issue_date = models.DateTimeField(verbose_name='Issue Date', default=now)
+    issue_date = models.DateTimeField(verbose_name='Issue Date', default=timezone.now)
     subject = models.CharField(verbose_name='Subject', max_length=100)
     discount = models.FloatField(verbose_name='Discount %', blank=True, null=True)
     amount = models.FloatField(verbose_name='Amount', blank=True, null=True)
     currency = models.CharField(verbose_name='Currency', max_length=3, choices=CURRENCY_CHOICES, default='HKD')
-    status = models.CharField(verbose_name='Status', max_length=6, choices=STATUS_CHOICES, default='DRAFT')
+    status = models.CharField(verbose_name='Status', max_length=6, choices=STATUS_CHOICES, default=DEFAULT_STATUS)
     lastmodify_date = models.DateTimeField(verbose_name='Last Modify Date', auto_now=True)
     lastmodify_person = models.ForeignKey(User, verbose_name='Last Modified', \
                                           on_delete=models.SET_NULL, \
@@ -121,6 +122,20 @@ class Document(models.Model):
 
     def __str__(self):
         return "%s %s"%(self.document_type, self.pk)
+
+    def copy_new(self):
+        categories = DocumentCategory.objects.filter(document=self)
+        new_doc = self
+        new_doc.id = None
+        new_doc.issue_date = timezone.now()
+        new_doc.status = self.DEFAULT_STATUS
+        new_doc.save()
+        for category in categories:
+            items = DocumentItem.objects.filter(category=category)
+            new_category = category.copy_new(new_doc)
+            for item in items:
+                item.copy_new(new_doc, new_category)
+        return new_doc
 
 
 class DocumentCategory(models.Model):
@@ -133,6 +148,13 @@ class DocumentCategory(models.Model):
 
     def __str__(self):
         return self.subject
+
+    def copy_new(self, new_doc):
+        new_obj = self
+        new_obj.id = None
+        new_obj.document = new_doc
+        new_obj.save()
+        return new_obj
 
 
 class DocumentItem(models.Model):
@@ -155,6 +177,14 @@ class DocumentItem(models.Model):
 
     def __str__(self):
         return self.subject
+
+    def copy_new(self, new_doc, new_category):
+        new_obj = self
+        new_obj.id = None
+        new_obj.document = new_doc
+        new_obj.category = new_category
+        new_obj.save()
+        return new_obj
 
 
 class Invoice(models.Model):
