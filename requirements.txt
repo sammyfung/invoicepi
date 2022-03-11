@@ -1,5 +1,5 @@
 Django==3.0.3
-Pillow==6.2.1
+Pillow==9.0.1
 PyPDF2==1.26.0
 PyYAML==5.1.2
 django-bootstrap==0.2.4
