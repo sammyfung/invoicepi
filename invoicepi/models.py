@@ -13,7 +13,7 @@ class Company(models.Model):
     email = models.EmailField(verbose_name='EMail', null=True, blank=True)
     website = models.URLField(verbose_name='Web Site', null=True, blank=True)
     primary_contact = models.ForeignKey(User, related_name='company_primary_contact', \
-                                        verbose_name='Web Site', on_delete=models.SET_NULL, \
+                                        verbose_name='Primary Contact', on_delete=models.SET_NULL, \
                                         null=True, blank=True)
     creator = models.ForeignKey(User, related_name='company_creator', \
                                 verbose_name='Creator', on_delete=models.SET_NULL, \
@@ -186,20 +186,3 @@ class DocumentItem(models.Model):
         new_obj.save()
         return new_obj
 
-
-class Invoice(models.Model):
-    document = models.ForeignKey(Document, verbose_name='Document', \
-                                 on_delete=models.CASCADE)
-    code = models.CharField(verbose_name='Invoice Code', max_length=100)
-
-    def __str__(self):
-        return self.code
-
-
-class Receipt(models.Model):
-    document = models.ForeignKey(Document, verbose_name='Document', \
-                                 on_delete=models.CASCADE)
-    code = models.CharField(verbose_name='Receipt Code', max_length=100)
-
-    def __str__(self):
-        return self.code

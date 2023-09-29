@@ -11,7 +11,7 @@ Contact List
 $(document).ready( function () {
     $('#person_list').DataTable( {
         "ajax": {
-            "url": '../api/person',
+            "url": 'api/person',
             "dataType": 'json',
             "dataSrc": "data",
         },
@@ -25,7 +25,7 @@ $(document).ready( function () {
         "columnDefs": [
             {
                 "render": function ( data, type, row ) {
-                    return '<a href="/person/' + row['id']+ '">' + data + '</a>';
+                    return '<a href="person/' + row['id']+ '">' + data + '</a>';
                 },
                 "targets": 1
             },
