@@ -1,8 +1,6 @@
 import re
 from io import BytesIO
-from cgi import escape
 from django.shortcuts import render, Http404, redirect
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from xhtml2pdf import pisa
 from django.template.loader import get_template
@@ -14,21 +12,15 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Document, DocumentType, DocumentCategory, DocumentItem, DocumentFlow, CompanyPerson, Company
 
 
-def get_document_format(document):
-    doc_type = DocumentType.objects.get(pk=document.document_type.pk)
-    document.opening = doc_type.opening
-    document.after_table = doc_type.after_table
-    document.closing = doc_type.closing
-    document.sender_sign = doc_type.sender_sign
-    document.receiver_sign = doc_type.receiver_sign
-    return document
-
-
 def get_document(document_id):
     # Getting document info and document code in its type syntax.
-    document = Document.objects.get(pk=document_id)
-    document = get_document_format(document)
-    document_type = ContentType.objects.get(model=document.document_type.model_name)
+    document = Document.objects.get(id=document_id)
+    document_type = DocumentType.objects.get(id=document.document_type.id)
+    document.opening = document_type.opening
+    document.after_table = document_type.after_table
+    document.closing = document_type.closing
+    document.sender_sign = document_type.sender_sign
+    document.receiver_sign = document_type.receiver_sign
     try:
         document.code = document_type.model_class().objects.get(pk=document.pk).code
     except ObjectDoesNotExist:
@@ -117,7 +109,7 @@ def render_to_pdf(code, template_src, context_dict):
         response = HttpResponse(result.getvalue(), content_type='application/pdf')
         response['Content-Disposition'] = filename
         return response
-    return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
+    return HttpResponse('We had some errors')
 
 
 def show_document(request, document_id, format='default'):
@@ -192,44 +184,6 @@ def api_show_document(request, document_id):
         except Document.DoesNotExist:
             raise Http404("Document is not exist.")
         return JsonResponse(json_items)
-    else:
-        raise Http404("Authentication is required.")
-
-
-def produce_workflow(request, document_id, flow_id):
-    term = request.GET.get('term', False)
-    if request.user.is_authenticated:
-        try:
-            source_doc = Document.objects.get(pk=document_id)
-            if request.user != source_doc.sender.person and request.user != source_doc.receiver.person:
-                raise Http404("Not permitted.")
-        except Document.DoesNotExist:
-            raise Http404("Document not exist.")
-
-        try:
-            target_type = DocumentFlow.objects.get(pk=flow_id)
-            if target_type.document != source_doc.document_type:
-                raise Http404("Invalid Workflow.")
-        except DocumentFlow.DoesNotExist:
-            raise Http404("Workflow not exist.")
-
-        # Creating new document
-        document_category = DocumentCategory.objects.all().filter(document=source_doc)
-        source_doc.pk = None
-        source_doc.document_type = target_type.product
-        source_doc.save()
-        for category in document_category:
-            if not(category.term == True and term == False):
-                old_category = DocumentCategory.objects.get(pk=category.pk)
-                category.pk = None
-                category.document = source_doc
-                category.save()
-                for item in DocumentItem.objects.all().filter(document=Document.objects.get(pk=document_id), category=old_category):
-                    item.pk = None
-                    item.document = source_doc
-                    item.category = category
-                    item.save()
-        return HttpResponse(source_doc.pk)
     else:
         raise Http404("Authentication is required.")
 
@@ -386,8 +340,8 @@ def api_list_company(request):
             json_item['fax'] = company.fax
             json_item['email'] = company.email
             json_item['website'] = company.website
-            json_item['primary_contact'] = "%s"%company.fullname_primary_contact()
-            json_item['creator'] = "%s"%company.creator
+            json_item['primary_contact'] = "%s" % company.fullname_primary_contact()
+            json_item['creator'] = "%s" % company.creator
             json_items['data'].append(json_item)
         return JsonResponse(json_items)
     else:
@@ -401,3 +355,26 @@ def api_show_company(request):
     else:
         return Http404("Authentication is required.")
 
+def show_company(request, id):
+    if request.user.is_authenticated:
+        try:
+            company = Company.objects.get(id=id)
+        except Company.DoesNotExist:
+            raise Http404("Company not exist.")
+
+        templ = 'invoicepi/show_company.html'
+        return render(request, templ, {'company': company},)
+    else:
+        raise Http404("Authentication is required.")
+    
+def show_person(request, id):
+    if request.user.is_authenticated:
+        try:
+            person = CompanyPerson.objects.get(id=id)
+        except Company.DoesNotExist:
+            raise Http404("Company Person not exist.")
+
+        templ = 'invoicepi/show_person.html'
+        return render(request, templ, {'person': person},)
+    else:
+        raise Http404("Authentication is required.")

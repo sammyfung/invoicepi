@@ -1,0 +1,73 @@
+{% extends "invoicepi/base.html" %}
+{% block title %}
+Company #{{ company.id }} - {{ company.name }}
+{% endblock %}
+{% block css %}
+<style>
+.text-top {
+  text-align:top;
+
+}
+</style>
+{% endblock %}
+{% block sidebar %}
+<ul class="nav nav-sidebar">
+  <li><a href="{% url 'list_document' %} ">My Document</a></li>
+  <li><a href="{% url 'list_person' %}">Contact List</a></li>
+  <li class="active"><a href="{% url 'list_company' %}">Company List</a></li>
+</ul>
+{% endblock %}
+{% block content %}
+<div style="text-align: left">
+  <h1>#{{ company.id }} - {{ company.name }}</h1>
+</div>
+
+<div class='documentdate'>
+  <div class="table-responsive">
+
+  <table class="table table-bordered">
+    <tbody style="padding: 2px 2px 2px 2px; ">
+      <tr>
+        <th>Company Name</th>
+        <td>{{ company.name }}</td>
+      </tr>
+      <tr>
+        <th>Description</th>
+        <td>{% if company.description %}{{ company.description|linebreaksbr }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th>Address</th>
+        <td>{% if company.address %}{{ company.address|linebreaksbr }}<br />{{ company.country }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th>Phone</th>
+        <td>{% if company.phone %}{{ company.phone }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th>Fax</th>
+        <td>{% if company.fax %}{{ company.fax }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th>Email</th>
+        <td>{% if company.email %}<a href="mailto:{{ company.email }}">{{ company.email }}{% else %}-{% endif %}</a></td>
+      </tr>
+      <tr>
+        <th>Website</th>
+        <td>{% if company.website %}<a href="{{ company.website }}">{{ company.website }}</a>{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th>Primary Contact</th>
+        <td>{% if company.primary_contact %}{{ company.primary_contact.username }} ({{ company.primary_contact }}){% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th>Created by</th>
+        <td>{% if company.creator %}{{ company.creator.username }} ({{ company.creator }}){% else %}-{% endif %}</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+<div class="row">
+
+</div>
+{% endblock %}

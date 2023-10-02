@@ -1,5 +1,5 @@
 from django.contrib import admin
-from invoicepi.models import Company, CompanyPerson, DocumentType, DocumentFlow, Document, \
+from .models import Company, CompanyPerson, DocumentType, DocumentFlow, Document, \
     DocumentCategory, DocumentItem
 
 
@@ -34,7 +34,7 @@ class DocumentItemInline(admin.StackedInline):
 
 
 class DocumentAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'document_type', 'issue_date', 'receiver', 'subject', 'currency', 'amount', 'status')
+    list_display = ('id', 'document_type', 'issue_date', 'receiver', 'subject', 'amount', 'status')
     inlines = [ DocumentItemInline ]
 
 
@@ -53,5 +53,4 @@ admin.site.register(DocumentFlow, DocumentFlowAdmin)
 admin.site.register(Document, DocumentAdmin)
 admin.site.register(DocumentCategory, DocumentCategoryAdmin)
 admin.site.register(DocumentItem, DocumentItemAdmin)
-#admin.site.unregister(User)
-#admin.site.register(User, UserAdmin)
+
