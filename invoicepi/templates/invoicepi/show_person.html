@@ -13,8 +13,8 @@ Person #{{ person.id }} - {{ person.name }}
 {% block sidebar %}
 <ul class="nav nav-sidebar">
   <li><a href="{% url 'list_document' %} ">My Document</a></li>
-  <li><a href="{% url 'list_person' %}">Contact List</a></li>
-  <li class="active"><a href="{% url 'list_company' %}">Company List</a></li>
+  <li class="active"><a href="{% url 'list_person' %}">Contact List</a></li>
+  <li><a href="{% url 'list_company' %}">Company List</a></li>
 </ul>
 {% endblock %}
 {% block content %}
