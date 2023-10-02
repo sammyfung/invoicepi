@@ -10,7 +10,7 @@ class Company(models.Model):
     country = models.CharField(verbose_name='Country', max_length=50, null=True, blank=True)
     phone = models.CharField(verbose_name='Phone', max_length=50, null=True, blank=True)
     fax = models.CharField(verbose_name='Fax', max_length=50, null=True, blank=True)
-    email = models.EmailField(verbose_name='EMail', null=True, blank=True)
+    email = models.EmailField(verbose_name='Email', null=True, blank=True)
     website = models.URLField(verbose_name='Web Site', null=True, blank=True)
     primary_contact = models.ForeignKey(User, related_name='company_primary_contact', \
                                         verbose_name='Primary Contact', on_delete=models.SET_NULL, \

@@ -34,7 +34,7 @@ class DocumentItemInline(admin.StackedInline):
 
 
 class DocumentAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'document_type', 'issue_date', 'receiver', 'subject', 'currency', 'amount', 'status')
+    list_display = ('id', 'document_type', 'issue_date', 'receiver', 'subject', 'amount', 'status')
     inlines = [ DocumentItemInline ]
 
 

@@ -355,3 +355,26 @@ def api_show_company(request):
     else:
         return Http404("Authentication is required.")
 
+def show_company(request, id):
+    if request.user.is_authenticated:
+        try:
+            company = Company.objects.get(id=id)
+        except Company.DoesNotExist:
+            raise Http404("Company not exist.")
+
+        templ = 'invoicepi/show_company.html'
+        return render(request, templ, {'company': company},)
+    else:
+        raise Http404("Authentication is required.")
+    
+def show_person(request, id):
+    if request.user.is_authenticated:
+        try:
+            person = CompanyPerson.objects.get(id=id)
+        except Company.DoesNotExist:
+            raise Http404("Company Person not exist.")
+
+        templ = 'invoicepi/show_person.html'
+        return render(request, templ, {'person': person},)
+    else:
+        raise Http404("Authentication is required.")

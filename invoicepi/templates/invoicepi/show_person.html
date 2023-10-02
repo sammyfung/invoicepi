@@ -1,0 +1,76 @@
+{% extends "invoicepi/base.html" %}
+{% block title %}
+Person #{{ person.id }} - {{ person.name }}
+{% endblock %}
+{% block css %}
+<style>
+.text-top {
+  text-align:top;
+
+}
+</style>
+{% endblock %}
+{% block sidebar %}
+<ul class="nav nav-sidebar">
+  <li><a href="{% url 'list_document' %} ">My Document</a></li>
+  <li><a href="{% url 'list_person' %}">Contact List</a></li>
+  <li class="active"><a href="{% url 'list_company' %}">Company List</a></li>
+</ul>
+{% endblock %}
+{% block content %}
+<div style="text-align: left">
+  <h1>#{{ person.id }} - 
+    {% if person.prefix %}{{ person.prefix }}{% endif %}
+    {% if person.person.first_name %}{{ person.person.first_name }}{% endif %}
+    {% if person.person.last_name %}{{ person.person.last_name }}{% endif %}    
+  </h1>
+</div>
+
+<div class='documentdate'>
+  <div class="table-responsive">
+
+  <table class="table table-bordered">
+    <tbody style="padding: 2px 2px 2px 2px; ">
+      <tr>
+        <th>Company Name</th>
+        <td>{{ person.company }}</td>
+      </tr>
+      <tr>
+        <th>Person Name</th>
+        <td>
+            {% if person.prefix %}{{ person.prefix }}{% endif %}
+            {% if person.person.first_name %}{{ person.person.first_name }}{% endif %}
+            {% if person.person.last_name %}{{ person.person.last_name }}{% endif %}
+            ({{ person.person }})
+        </td>
+      </tr>
+      <tr>
+        <th>Email</th>
+        <td>{% if person.person.email %}<a href="mailto:{{ person.person.email }}">{{ person.person.email }}</a>{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th>Title</th>
+        <td>{% if person.title %}{{ person.title }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th>Mobile</th>
+        <td>{% if person.mobile %}{{ person.mobile }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th>Direct</th>
+        <td>{% if person.direct %}{{ person.direct }}{% else %}-{% endif %}</td>
+      </tr>
+      <tr>
+        <th>Created by</th>
+        <td>{% if person.creator %}{{ person.creator.username }} 
+            ({% if person.person.first_name %}{{ person.person.first_name }}{% endif %}
+            {% if person.person.last_name %}{{ person.person.last_name }}{% endif %}){% else %}-{% endif %}</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+<div class="row">
+
+</div>
+{% endblock %}
