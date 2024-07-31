@@ -29,7 +29,7 @@ class Company(models.Model):
             else:
                 return "%s%s"%(self.primary_contact.first_name, self.primary_contact.last_name)
         else:
-            return self.username
+            return self.primary_contact.username
 
 
 class CompanyPerson(models.Model):
