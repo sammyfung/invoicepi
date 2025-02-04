@@ -5,7 +5,7 @@ invoicepi is a web-based Quotation / Invoice / Receipt System. It is a Django mo
 ## Features
 
 * **Create Invoices**: use Django administration (django.contrib.admin) to create, modify and delete invoices, quotations, receipts and other document. 
-* **Invoice to PDF / HTML **: click on a "Save" (PDF) or "Print" (HTML) icon on top left of document page to get its PDF file or simply HTML page. The PDF file  / HTML file can be printed or saved as a file to email it to client.
+* **Invoice to PDF / HTML**: click on a "Save" (PDF) or "Print" (HTML) icon on top left of document page to get its PDF file or simply HTML page. The PDF file  / HTML file can be printed or saved as a file to email it to client.
 * **Other features**: Item amounts can be waived, total amount can add a discount off, item can be header only without description.
 
 ## Add "Invoices"
@@ -30,8 +30,8 @@ Hereby are steps to create an invoices in Django administration with invoicepi i
       ```
 
 4. **Try it**:
-   a. Login and main page of invoicepi is located at [/invoicepi](http://localhost:8000/invoicepi) of your Django project, and use Django admin to modify contents.
+   1. Login and main page of invoicepi is located at [/invoicepi](http://localhost:8000/invoicepi) of your Django project, and use Django admin to modify contents.
 
-```
-http://localhost:8000/invoicepi
-```
+      ```
+      http://localhost:8000/invoicepi
+      ```
