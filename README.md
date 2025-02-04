@@ -10,6 +10,8 @@ invoicepi is a web-based Quotation / Invoice / Receipt System. It is a Django mo
 
 ## Add "Invoices"
 
+![InvoicePi Invoice Example](https://sammy.hk/wp-content/uploads/2025/02/Screenshot-2025-02-04-InvoicePi.png)
+
 Hereby are steps to create an invoices in Django administration with invoicepi installed.
 
 0. (One off) adding new document type: Add "Invoice" in "Document types".
