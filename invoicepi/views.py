@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.urls import reverse
 from .models import Document, DocumentType, DocumentCategory, DocumentItem, DocumentFlow, CompanyPerson, Company
 
 
@@ -255,7 +256,7 @@ def api_list_document(request):
 
 def logon_form(request):
     if request.user.is_authenticated:
-        return redirect('list_document')
+        return redirect('invoicepi:list_document')
     else:
         email = request.POST.get('inputEmail', '')
         password = request.POST.get('inputPassword', '')
@@ -263,11 +264,11 @@ def logon_form(request):
             try:
                 username = User.objects.get(email=email).username
             except ObjectDoesNotExist:
-                return redirect('logon_form')
+                return redirect('invoicepi:logon_form')
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-            return redirect('logon_form')
+            return redirect('invoicepi:logon_form')
         else:
             return render(request, 'invoicepi/logon_form.html')
 
@@ -275,7 +276,7 @@ def logon_form(request):
 def logoff_form(request):
     if request.user.is_authenticated:
         logout(request)
-    return redirect('logon_form')
+    return redirect('invoicepi:logon_form')
 
 
 def list_person(request):
@@ -318,7 +319,7 @@ def copy_document(request, document_id):
     if request.user.is_authenticated:
         doc = Document.objects.get(id=document_id)
         new_doc = doc.copy_new()
-        return HttpResponseRedirect('/invoicepi/doc/%s' % new_doc.id)
+        return HttpResponseRedirect(reverse('invoicepi:show_document', args=[new_doc.id]))
     else:
         return Http404("Authentication is required.")
 

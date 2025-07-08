@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'invoicepi'
+
 urlpatterns = [
     path('doc/<int:document_id>/copy', views.copy_document, name='copy_document'),
     path('doc/<int:document_id>/pdf', views.show_document, {'format': 'pdf'}, name='show_document_pdf'),
