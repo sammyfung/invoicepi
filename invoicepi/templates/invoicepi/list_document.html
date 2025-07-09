@@ -21,7 +21,6 @@ $(document).ready( function () {
             }
         },
         "columns": [
-            { 'data': 'id' },
             { "data": "issue_date" },
             { 'data': 'document_type' },
             { 'data': 'receiver' },
@@ -33,15 +32,15 @@ $(document).ready( function () {
             {
                 "render": function ( data, type, row ) {
                     date = new moment(data);
-                    return date.format("YYYY-MM-DD");
+                    return date.format("YYYY-MM-DD hh:mm");
                 },
-                "targets": 1
+                "targets": 0
             },
             {
                 "render": function ( data, type, row ) {
                     return '<a href="doc/' + row['id']+ '">' + data + '</a>';
                 },
-                "targets": 4
+                "targets": 3
             },
          ]
     });
@@ -65,8 +64,7 @@ My Documents
     <table class="table table-striped" id="doclist">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Issue Date</th>
+          <th>Date/Time</th>
           <th>Type</th>
           <th>To</th>
           <th>Subject</th>
